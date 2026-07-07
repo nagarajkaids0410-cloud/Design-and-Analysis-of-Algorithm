@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interpolation Search vs Binary Search</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#f2f4f7;
+    padding:30px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    background:#fff;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+h1{
+    text-align:center;
+    color:#2c3e50;
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    margin-top:20px;
+    padding:12px;
+    font-size:16px;
+    border:none;
+    border-radius:5px;
+    background:#007bff;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0056b3;
+}
+
+pre{
+    margin-top:20px;
+    background:#222;
+    color:#00ff99;
+    padding:15px;
+    border-radius:8px;
+    overflow:auto;
+}
+
+table{
+    width:100%;
+    margin-top:20px;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#007bff;
+    color:white;
+}
+
+tr:nth-child(even){
+    background:#f8f8f8;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Interpolation Search vs Binary Search</h1>
+
+<label>Sorted Array (comma separated)</label>
+<input type="text" id="array"
+value="2,5,10,15,23,35,48,60,75,90,105,120">
+
+<label>Target Value</label>
+<input type="number" id="target" value="35">
+
+<button onclick="runSearch()">Run Search</button>
+
+<pre id="result"></pre>
+
+<h2 style="margin-top:30px;">Performance Analysis</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Size</th>
+<th>IS Time (ms)</th>
+<th>BS Time (ms)</th>
+<th>IS Comparisons</th>
+<th>BS Comparisons</th>
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+function interpolationSearch(arr,target){
+
+    let low=0;
+    let high=arr.length-1;
+    let comparisons=0;
+
+    while(low<=high && target>=arr[low] && target<=arr[high]){
+
+        comparisons++;
+
+        if(low===high){
+
+            if(arr[low]===target)
+                return {index:low,comparisons};
+
+            return {index:-1,comparisons};
+        }
+
+        let pos=low+Math.floor(((target-arr[low])*(high-low))/(arr[high]-arr[low]));
+
+        if(arr[pos]===target)
+            return {index:pos,comparisons};
+
+        if(arr[pos]<target)
+            low=pos+1;
+        else
+            high=pos-1;
+    }
+
+    return {index:-1,comparisons};
+}
+
+function binarySearch(arr,target){
+
+    let low=0;
+    let high=arr.length-1;
+    let comparisons=0;
+
+    while(low<=high){
+
+        comparisons++;
+
+        let mid=Math.floor((low+high)/2);
+
+        if(arr[mid]===target)
+            return {index:mid,comparisons};
+
+        if(arr[mid]<target)
+            low=mid+1;
+        else
+            high=mid-1;
+    }
+
+    return {index:-1,comparisons};
+}
+
+function randomArray(size){
+
+    let arr=[];
+
+    for(let i=0;i<size;i++)
+        arr.push(i*10+Math.floor(Math.random()*5));
+
+    return arr;
+}
+
+function performanceAnalysis(){
+
+    let sizes=[1000,5000,10000,50000,100000];
+
+    let tbody=document.getElementById("tableBody");
+    tbody.innerHTML="";
+
+    sizes.forEach(size=>{
+
+        let arr=randomArray(size);
+
+        let target=arr[Math.floor(Math.random()*size)];
+
+        let start=performance.now();
+
+        let is;
+
+        for(let i=0;i<100;i++)
+            is=interpolationSearch(arr,target);
+
+        let isTime=(performance.now()-start)/100;
+
+        start=performance.now();
+
+        let bs;
+
+        for(let i=0;i<100;i++)
+            bs=binarySearch(arr,target);
+
+        let bsTime=(performance.now()-start)/100;
+
+        tbody.innerHTML+=`
+        <tr>
+        <td>${size}</td>
+        <td>${isTime.toFixed(4)}</td>
+        <td>${bsTime.toFixed(4)}</td>
+        <td>${is.comparisons}</td>
+        <td>${bs.comparisons}</td>
+        </tr>`;
+    });
+
+}
+
+function runSearch(){
+
+    let arr=document.getElementById("array").value
+        .split(",")
+        .map(Number);
+
+    let target=parseInt(document.getElementById("target").value);
+
+    let is=interpolationSearch(arr,target);
+    let bs=binarySearch(arr,target);
+
+    document.getElementById("result").textContent=
+
+`Array : ${arr.join(", ")}
+
+Target : ${target}
+
+Interpolation Search
+------------------------------
+Index Found : ${is.index}
+Comparisons : ${is.comparisons}
+
+Binary Search
+------------------------------
+Index Found : ${bs.index}
+Comparisons : ${bs.comparisons}`;
+
+    performanceAnalysis();
+
+}
+
+runSearch();
+
+</script>
+
+</body>
+</html>

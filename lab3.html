@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kruskal's & Prim's MST</title>
+
+<style>
+body{
+    font-family:Arial, sans-serif;
+    background:#f4f4f4;
+    margin:20px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+h1{
+    text-align:center;
+    color:#2c3e50;
+}
+
+label{
+    font-weight:bold;
+    display:block;
+    margin-top:15px;
+}
+
+input, textarea{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    font-size:15px;
+}
+
+textarea{
+    height:180px;
+    resize:vertical;
+}
+
+button{
+    width:100%;
+    margin-top:20px;
+    padding:12px;
+    background:#007BFF;
+    color:white;
+    border:none;
+    border-radius:5px;
+    font-size:17px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0056b3;
+}
+
+pre{
+    background:#222;
+    color:#00ff99;
+    padding:15px;
+    border-radius:8px;
+    margin-top:20px;
+    white-space:pre-wrap;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>Kruskal's & Prim's MST</h1>
+
+<label>Number of Vertices</label>
+<input type="number" id="vertices" value="7">
+
+<label>Edges (one per line: source destination weight)</label>
+
+<textarea id="edges">
+0 1 7
+0 3 5
+1 2 8
+1 3 9
+1 4 7
+2 4 5
+3 4 15
+3 5 6
+4 5 8
+4 6 9
+5 6 11
+</textarea>
+
+<label>Starting Vertex for Prim's Algorithm</label>
+<input type="number" id="start" value="0">
+
+<button onclick="runAlgorithms()">Run Algorithms</button>
+
+<pre id="output"></pre>
+
+</div>
+
+<script>
+
+class UnionFind{
+
+constructor(n){
+this.parent=[];
+this.rank=[];
+
+for(let i=0;i<n;i++){
+this.parent.push(i);
+this.rank.push(0);
+}
+}
+
+find(x){
+if(this.parent[x]!=x)
+this.parent[x]=this.find(this.parent[x]);
+return this.parent[x];
+}
+
+union(x,y){
+
+let rx=this.find(x);
+let ry=this.find(y);
+
+if(rx==ry)
+return false;
+
+if(this.rank[rx]<this.rank[ry]){
+let t=rx;
+rx=ry;
+ry=t;
+}
+
+this.parent[ry]=rx;
+
+if(this.rank[rx]==this.rank[ry])
+this.rank[rx]++;
+
+return true;
+}
+}
+
+function kruskal(n,edges){
+
+edges.sort((a,b)=>a[0]-b[0]);
+
+let uf=new UnionFind(n);
+
+let mst=[];
+let cost=0;
+
+for(let e of edges){
+
+let w=e[0];
+let u=e[1];
+let v=e[2];
+
+if(uf.union(u,v)){
+mst.push([u,v,w]);
+cost+=w;
+}
+}
+
+return {mst,cost};
+}
+
+function prim(n,adj,start){
+
+let visited=new Array(n).fill(false);
+
+visited[start]=true;
+
+let mst=[];
+let cost=0;
+
+while(mst.length<n-1){
+
+let min=Infinity;
+let from=-1;
+let to=-1;
+
+for(let i=0;i<n;i++){
+
+if(visited[i]){
+
+for(let edge of adj[i]){
+
+let v=edge[0];
+let w=edge[1];
+
+if(!visited[v] && w<min){
+min=w;
+from=i;
+to=v;
+}
+
+}
+
+}
+
+}
+
+if(to==-1) break;
+
+visited[to]=true;
+
+mst.push([from,to,min]);
+
+cost+=min;
+
+}
+
+return {mst,cost};
+
+}
+
+function runAlgorithms(){
+
+let n=parseInt(document.getElementById("vertices").value);
+
+let lines=document.getElementById("edges").value.trim().split("\n");
+
+let edges=[];
+
+let adj=[];
+
+for(let i=0;i<n;i++)
+adj.push([]);
+
+for(let line of lines){
+
+let p=line.trim().split(/\s+/);
+
+if(p.length!=3) continue;
+
+let u=parseInt(p[0]);
+let v=parseInt(p[1]);
+let w=parseInt(p[2]);
+
+edges.push([w,u,v]);
+
+adj[u].push([v,w]);
+adj[v].push([u,w]);
+
+}
+
+let start=parseInt(document.getElementById("start").value);
+
+let k=kruskal(n,[...edges]);
+
+let p=prim(n,adj,start);
+
+let out="===== KRUSKAL'S MST =====\n\n";
+
+k.mst.forEach(e=>{
+out+=`${e[0]} -- ${e[1]}   Weight = ${e[2]}\n`;
+});
+
+out+="\nTotal Cost = "+k.cost;
+
+out+="\n\n=============================\n\n";
+
+out+="===== PRIM'S MST =====\n\n";
+
+p.mst.forEach(e=>{
+out+=`${e[0]} -- ${e[1]}   Weight = ${e[2]}\n`;
+});
+
+out+="\nTotal Cost = "+p.cost;
+
+document.getElementById("output").textContent=out;
+
+}
+
+</script>
+
+</body>
+</html>
