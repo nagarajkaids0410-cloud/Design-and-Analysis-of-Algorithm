@@ -5,3 +5,5 @@ https://melodic-torte-0fc640.netlify.app - lab2
 https://dreamy-vacherin-aace66.netlify.app - lab3
 
 https://daa-lab4.netlify.app/ - lab4
+
+https://daa-lab5.netlify.app/ - lab5
