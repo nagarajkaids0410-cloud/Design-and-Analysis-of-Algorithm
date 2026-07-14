@@ -1,120 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Min-Max Using Divide and Conquer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAA Lab 5 - Min Max (Divide & Conquer)</title>
 
-    <style>
-        body{
-            font-family: Arial, Helvetica, sans-serif;
-            background:#f4f4f4;
-            margin:40px;
-        }
+<style>
+body{
+    font-family:Arial;
+    background:#f5f7fa;
+    margin:40px;
+}
 
-        h1{
-            color:#003366;
-            text-align:center;
-        }
+.container{
+    max-width:800px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.2);
+}
 
-        h2{
-            color:#444;
-        }
+h1{
+    text-align:center;
+    color:#0d47a1;
+}
 
-        pre{
-            background:#222;
-            color:#00ff99;
-            padding:20px;
-            border-radius:8px;
-            overflow:auto;
-            font-size:15px;
-        }
+input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    margin-bottom:20px;
+    font-size:16px;
+}
 
-        .container{
-            width:90%;
-            margin:auto;
-        }
-    </style>
+button{
+    background:#1976d2;
+    color:white;
+    border:none;
+    padding:12px 25px;
+    cursor:pointer;
+    border-radius:5px;
+    font-size:16px;
+}
+
+button:hover{
+    background:#1565c0;
+}
+
+#output{
+    margin-top:25px;
+    background:#eeeeee;
+    padding:15px;
+    border-radius:8px;
+    white-space:pre-wrap;
+}
+</style>
+
 </head>
 <body>
 
 <div class="container">
 
-<h1>Ex. No. 5</h1>
+<h1>Divide & Conquer - Min Max</h1>
 
-<h2>To Find Min-Max Value by Applying Divide and Conquer Technique</h2>
+<label>Enter Array Elements (space separated)</label>
 
-<p>
-This program finds the minimum and maximum values of an array using the
-Divide and Conquer technique and compares the number of comparisons with
-the traditional (Naive) approach.
-</p>
+<input type="text" id="arr" placeholder="3 1 7 4 9 2 8 5 6 0">
 
-<h2>Python Code</h2>
+<button onclick="runProgram()">Run Algorithm</button>
 
-<pre>
-import random
-
-comparison_count = 0
-
-def min_max_dc(arr, low, high):
-    global comparison_count
-
-    if low == high:
-        return arr[low], arr[low]
-
-    if high == low + 1:
-        comparison_count += 1
-        if arr[low] < arr[high]:
-            return arr[low], arr[high]
-        else:
-            return arr[high], arr[low]
-
-    mid = (low + high) // 2
-
-    lmin, lmax = min_max_dc(arr, low, mid)
-    rmin, rmax = min_max_dc(arr, mid + 1, high)
-
-    comparison_count += 1
-    overall_min = lmin if lmin < rmin else rmin
-
-    comparison_count += 1
-    overall_max = lmax if lmax > rmax else rmax
-
-    return overall_min, overall_max
-
-
-def min_max_naive(arr):
-    mn = mx = arr[0]
-    comps = 0
-
-    for x in arr[1:]:
-        comps += 1
-        if x < mn:
-            mn = x
-
-        comps += 1
-        if x > mx:
-            mx = x
-
-    return mn, mx, comps
-
-
-arr = [3,1,7,4,9,2,8,5,6,0]
-
-comparison_count = 0
-mn, mx = min_max_dc(arr, 0, len(arr)-1)
-dc_comps = comparison_count
-
-_, _, naive_comps = min_max_naive(arr)
-
-print("Minimum =", mn)
-print("Maximum =", mx)
-print("Divide & Conquer Comparisons =", dc_comps)
-print("Naive Comparisons =", naive_comps)
-</pre>
+<div id="output"></div>
 
 </div>
+
+<script>
+
+function minMax(arr){
+
+function solve(low,high){
+
+if(low==high)
+return {min:arr[low],max:arr[low],comp:0};
+
+if(high==low+1){
+
+let c=1;
+
+if(arr[low]<arr[high])
+return {min:arr[low],max:arr[high],comp:c};
+
+return {min:arr[high],max:arr[low],comp:c};
+
+}
+
+let mid=Math.floor((low+high)/2);
+
+let left=solve(low,mid);
+
+let right=solve(mid+1,high);
+
+let comp=left.comp+right.comp+2;
+
+return{
+
+min:Math.min(left.min,right.min),
+
+max:Math.max(left.max,right.max),
+
+comp:comp
+
+};
+
+}
+
+return solve(0,arr.length-1);
+
+}
+
+function runProgram(){
+
+let arr=document.getElementById("arr").value
+.trim()
+.split(/\s+/)
+.map(Number);
+
+if(arr.length==0 || isNaN(arr[0])){
+
+alert("Enter valid numbers");
+return;
+
+}
+
+let ans=minMax(arr);
+
+document.getElementById("output").innerHTML=
+
+"Input Array : "+arr.join(" ")+"\n\n"+
+"Minimum Element : "+ans.min+"\n"+
+"Maximum Element : "+ans.max+"\n"+
+"Comparisons : "+ans.comp;
+
+}
+
+</script>
 
 </body>
 </html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Chain Multiplication - DAA Lab</title>
+
+<style>
+body{
+    font-family:Arial, sans-serif;
+    background:#f4f6f9;
+}
+
+.container{
+    width:800px;
+    margin:40px auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.2);
+}
+
+h1{
+    text-align:center;
+    color:#1565c0;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:15px 0;
+    font-size:16px;
+}
+
+button{
+    padding:12px 25px;
+    background:#1565c0;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0d47a1;
+}
+
+#output{
+    margin-top:25px;
+    background:#eeeeee;
+    padding:20px;
+    border-radius:5px;
+    white-space:pre-wrap;
+    font-family:Consolas;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Matrix Chain Multiplication</h1>
+
+<label>Enter Dimensions (space separated)</label>
+
+<input
+type="text"
+id="dims"
+placeholder="10 30 5 60 10">
+
+<button onclick="run()">Run Algorithm</button>
+
+<div id="output"></div>
+
+</div>
+
+<script>
+
+function matrixChainOrder(dims){
+
+let n=dims.length-1;
+
+let m=Array.from({length:n+1},()=>Array(n+1).fill(0));
+
+let s=Array.from({length:n+1},()=>Array(n+1).fill(0));
+
+for(let l=2;l<=n;l++){
+
+for(let i=1;i<=n-l+1;i++){
+
+let j=i+l-1;
+
+m[i][j]=Infinity;
+
+for(let k=i;k<j;k++){
+
+let cost=m[i][k]+m[k+1][j]+dims[i-1]*dims[k]*dims[j];
+
+if(cost<m[i][j]){
+
+m[i][j]=cost;
+
+s[i][j]=k;
+
+}
+
+}
+
+}
+
+}
+
+return {m,s,n};
+
+}
+
+function parenthesis(s,i,j){
+
+if(i==j)
+return "A"+i;
+
+let k=s[i][j];
+
+return "("+
+parenthesis(s,i,k)
++" × "+
+parenthesis(s,k+1,j)
++")";
+
+}
+
+function run(){
+
+let dims=document.getElementById("dims")
+.value
+.trim()
+.split(/\s+/)
+.map(Number);
+
+if(dims.length<2){
+
+alert("Enter valid dimensions");
+return;
+
+}
+
+let result=matrixChainOrder(dims);
+
+let out="";
+
+out+="Matrix Dimensions\n\n";
+
+for(let i=0;i<result.n;i++){
+
+out+="A"+(i+1)+": "+dims[i]+" × "+dims[i+1]+"\n";
+
+}
+
+out+="\nMinimum Scalar Multiplications : ";
+
+out+=result.m[1][result.n];
+
+out+="\n\nOptimal Parenthesization : ";
+
+out+=parenthesis(result.s,1,result.n);
+
+out+="\n\nDP Cost Table\n\n";
+
+out+="      ";
+
+for(let j=1;j<=result.n;j++)
+out+="A"+j+"\t";
+
+out+="\n";
+
+for(let i=1;i<=result.n;i++){
+
+out+="A"+i+"\t";
+
+for(let j=1;j<=result.n;j++){
+
+if(j<i)
+out+="---\t";
+
+else
+out+=result.m[i][j]+"\t";
+
+}
+
+out+="\n";
+
+}
+
+document.getElementById("output").innerText=out;
+
+}
+
+</script>
+
+</body>
+</html>
