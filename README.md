@@ -9,3 +9,5 @@ https://daa-lab4.netlify.app/                lab4
 https://daa-lab5.netlify.app/                lab5
 
 https://daa-lab6.netlify.app/                lab6
+
+https://daa-lab7.netlify.app/                lab7
