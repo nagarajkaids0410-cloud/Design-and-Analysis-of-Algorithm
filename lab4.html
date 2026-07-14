@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -397,4 +398,405 @@ document.getElementById("output").textContent=output;
 
 
 </body>
+=======
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Dijkstra Algorithm</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f2f4f7;
+    padding:30px;
+}
+
+.container{
+
+    width:800px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 0 10px gray;
+
+}
+
+h1{
+
+    text-align:center;
+    color:#2c3e50;
+
+}
+
+
+label{
+
+    font-weight:bold;
+    display:block;
+    margin-top:15px;
+
+}
+
+
+input,textarea{
+
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+
+    border:1px solid #ccc;
+    border-radius:5px;
+
+}
+
+
+textarea{
+
+    height:180px;
+
+}
+
+
+button{
+
+    width:100%;
+    margin-top:20px;
+
+    padding:12px;
+
+    background:#007bff;
+
+    color:white;
+
+    border:none;
+
+    border-radius:5px;
+
+    font-size:17px;
+
+    cursor:pointer;
+
+}
+
+
+button:hover{
+
+    background:#0056b3;
+
+}
+
+
+pre{
+
+    margin-top:20px;
+
+    background:#222;
+
+    color:#00ff99;
+
+    padding:20px;
+
+    border-radius:8px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h1>Dijkstra's Shortest Path Algorithm</h1>
+
+
+<label>
+Number of Vertices
+</label>
+
+<input id="vertices" type="number" value="6">
+
+
+
+<label>
+Edges (source destination weight)
+</label>
+
+
+<textarea id="edges">
+
+0 1 4
+0 2 1
+1 3 1
+2 1 2
+2 3 5
+3 4 3
+4 5 2
+
+</textarea>
+
+
+
+<label>
+Source Vertex
+</label>
+
+
+<input id="source" type="number" value="0">
+
+
+
+<button onclick="runDijkstra()">
+
+Run Dijkstra
+
+</button>
+
+
+
+<pre id="output"></pre>
+
+
+</div>
+
+
+
+
+<script>
+
+
+function dijkstra(graph,source){
+
+
+let n=graph.length;
+
+
+let dist=new Array(n).fill(Infinity);
+
+let prev=new Array(n).fill(null);
+
+
+let visited=new Set();
+
+
+
+dist[source]=0;
+
+
+
+let pq=[[0,source]];
+
+
+
+while(pq.length){
+
+
+pq.sort((a,b)=>a[0]-b[0]);
+
+
+let [d,u]=pq.shift();
+
+
+
+if(visited.has(u))
+continue;
+
+
+
+visited.add(u);
+
+
+
+for(let edge of graph[u]){
+
+
+let v=edge[0];
+
+let w=edge[1];
+
+
+
+if(dist[u]+w < dist[v]){
+
+
+dist[v]=dist[u]+w;
+
+prev[v]=u;
+
+
+pq.push([dist[v],v]);
+
+
+}
+
+
+}
+
+
+}
+
+
+
+return {dist,prev};
+
+
+}
+
+
+
+
+
+function reconstruct(prev,source,target){
+
+
+let path=[];
+
+
+let node=target;
+
+
+
+while(node!=null){
+
+path.push(node);
+
+node=prev[node];
+
+}
+
+
+
+path.reverse();
+
+
+
+if(path[0]==source)
+
+return path;
+
+
+
+return [];
+
+}
+
+
+
+
+
+function runDijkstra(){
+
+
+
+let n=parseInt(document.getElementById("vertices").value);
+
+
+
+let graph=[];
+
+
+
+for(let i=0;i<n;i++)
+graph.push([]);
+
+
+
+let lines=document.getElementById("edges").value.trim().split("\n");
+
+
+
+for(let line of lines){
+
+
+let data=line.trim().split(/\s+/);
+
+
+
+if(data.length==3){
+
+
+let u=parseInt(data[0]);
+
+let v=parseInt(data[1]);
+
+let w=parseInt(data[2]);
+
+
+
+graph[u].push([v,w]);
+
+
+}
+
+
+}
+
+
+
+let source=parseInt(document.getElementById("source").value);
+
+
+
+let result=dijkstra(graph,source);
+
+
+
+let output="Shortest paths from vertex "+source+"\n\n";
+
+
+output+="Vertex\tDistance\tPath\n";
+
+output+="--------------------------------------\n";
+
+
+
+for(let i=0;i<n;i++){
+
+
+
+let path=reconstruct(
+result.prev,
+source,
+i
+);
+
+
+
+let pathText=path.length?
+path.join(" -> "):
+"No path";
+
+
+
+let d=result.dist[i]==Infinity?
+"INF":
+result.dist[i];
+
+
+
+output+=
+i+"\t"+d+"\t\t"+pathText+"\n";
+
+}
+
+
+
+document.getElementById("output").textContent=output;
+
+
+}
+
+
+</script>
+
+
+</body>
+>>>>>>> fb59b8182adc033b6b284a364e635e2ce45e653b
 </html>
