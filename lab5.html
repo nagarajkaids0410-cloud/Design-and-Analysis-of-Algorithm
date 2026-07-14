@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min-Max Using Divide and Conquer</title>
+
+    <style>
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            background:#f4f4f4;
+            margin:40px;
+        }
+
+        h1{
+            color:#003366;
+            text-align:center;
+        }
+
+        h2{
+            color:#444;
+        }
+
+        pre{
+            background:#222;
+            color:#00ff99;
+            padding:20px;
+            border-radius:8px;
+            overflow:auto;
+            font-size:15px;
+        }
+
+        .container{
+            width:90%;
+            margin:auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Ex. No. 5</h1>
+
+<h2>To Find Min-Max Value by Applying Divide and Conquer Technique</h2>
+
+<p>
+This program finds the minimum and maximum values of an array using the
+Divide and Conquer technique and compares the number of comparisons with
+the traditional (Naive) approach.
+</p>
+
+<h2>Python Code</h2>
+
+<pre>
+import random
+
+comparison_count = 0
+
+def min_max_dc(arr, low, high):
+    global comparison_count
+
+    if low == high:
+        return arr[low], arr[low]
+
+    if high == low + 1:
+        comparison_count += 1
+        if arr[low] < arr[high]:
+            return arr[low], arr[high]
+        else:
+            return arr[high], arr[low]
+
+    mid = (low + high) // 2
+
+    lmin, lmax = min_max_dc(arr, low, mid)
+    rmin, rmax = min_max_dc(arr, mid + 1, high)
+
+    comparison_count += 1
+    overall_min = lmin if lmin < rmin else rmin
+
+    comparison_count += 1
+    overall_max = lmax if lmax > rmax else rmax
+
+    return overall_min, overall_max
+
+
+def min_max_naive(arr):
+    mn = mx = arr[0]
+    comps = 0
+
+    for x in arr[1:]:
+        comps += 1
+        if x < mn:
+            mn = x
+
+        comps += 1
+        if x > mx:
+            mx = x
+
+    return mn, mx, comps
+
+
+arr = [3,1,7,4,9,2,8,5,6,0]
+
+comparison_count = 0
+mn, mx = min_max_dc(arr, 0, len(arr)-1)
+dc_comps = comparison_count
+
+_, _, naive_comps = min_max_naive(arr)
+
+print("Minimum =", mn)
+print("Maximum =", mx)
+print("Divide & Conquer Comparisons =", dc_comps)
+print("Naive Comparisons =", naive_comps)
+</pre>
+
+</div>
+
+</body>
+</html>
