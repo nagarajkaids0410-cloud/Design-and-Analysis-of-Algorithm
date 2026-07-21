@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bin Packing Algorithms</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f4f4f4;
+}
+
+.container{
+    width:900px;
+    max-width:95%;
+    margin:30px auto;
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.2);
+}
+
+h1{
+    text-align:center;
+    color:#1565c0;
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+button{
+    width:100%;
+    margin-top:20px;
+    padding:12px;
+    background:#1565c0;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:17px;
+}
+
+button:hover{
+    background:#0d47a1;
+}
+
+.result{
+    margin-top:30px;
+}
+
+.box{
+    background:#eef5ff;
+    border-left:6px solid #1565c0;
+    padding:12px;
+    margin:10px 0;
+}
+
+.bar{
+    height:20px;
+    background:#ddd;
+    margin-top:8px;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.fill{
+    height:100%;
+    background:#4CAF50;
+}
+
+table{
+    width:100%;
+    margin-top:20px;
+    border-collapse:collapse;
+}
+
+table,th,td{
+    border:1px solid #999;
+}
+
+th{
+    background:#1565c0;
+    color:white;
+}
+
+th,td{
+    padding:10px;
+    text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Bin Packing Algorithms</h1>
+
+<label>Items (comma separated)</label>
+<input type="text" id="items"
+value="0.5,0.7,0.3,0.9,0.2,0.6,0.8,0.4,0.1,0.5">
+
+<label>Bin Capacity</label>
+<input type="number" id="capacity" step="0.1" value="1">
+
+<button onclick="calculate()">Calculate</button>
+
+<div id="output" class="result"></div>
+
+</div>
+
+<script>
+
+function firstFit(items, capacity){
+
+    let bins=[];
+    let contents=[];
+
+    for(let item of items){
+
+        let placed=false;
+
+        for(let i=0;i<bins.length;i++){
+
+            if(bins[i]>=item){
+
+                bins[i]-=item;
+                contents[i].push(item);
+
+                placed=true;
+                break;
+            }
+        }
+
+        if(!placed){
+            bins.push(capacity-item);
+            contents.push([item]);
+        }
+
+    }
+
+    return contents;
+}
+
+function firstFitDecreasing(items,capacity){
+
+    let sorted=[...items].sort((a,b)=>b-a);
+
+    return firstFit(sorted,capacity);
+}
+
+function bestFitDecreasing(items,capacity){
+
+    let sorted=[...items].sort((a,b)=>b-a);
+
+    let bins=[];
+    let contents=[];
+
+    for(let item of sorted){
+
+        let best=-1;
+        let bestSpace=Infinity;
+
+        for(let i=0;i<bins.length;i++){
+
+            if(bins[i]>=item && bins[i]-item<bestSpace){
+
+                best=i;
+                bestSpace=bins[i]-item;
+
+            }
+
+        }
+
+        if(best!=-1){
+
+            bins[best]-=item;
+            contents[best].push(item);
+
+        }
+        else{
+
+            bins.push(capacity-item);
+            contents.push([item]);
+
+        }
+
+    }
+
+    return contents;
+}
+
+function show(title,bins,capacity){
+
+    let html=`<h2>${title} (${bins.length} bins)</h2>`;
+
+    bins.forEach((bin,index)=>{
+
+        let used=bin.reduce((a,b)=>a+b,0);
+
+        let percent=(used/capacity)*100;
+
+        html+=`
+        <div class="box">
+        <b>Bin ${index+1}</b><br>
+        Items : ${bin.join(", ")}<br>
+        Used : ${used.toFixed(2)}
+        <div class="bar">
+            <div class="fill" style="width:${percent}%"></div>
+        </div>
+        </div>
+        `;
+
+    });
+
+    return html;
+}
+
+function calculate(){
+
+    let items=document.getElementById("items").value
+        .split(",")
+        .map(Number);
+
+    let capacity=parseFloat(document.getElementById("capacity").value);
+
+    let total=items.reduce((a,b)=>a+b,0);
+
+    let lower=Math.ceil(total/capacity);
+
+    let ff=firstFit(items,capacity);
+    let ffd=firstFitDecreasing(items,capacity);
+    let bfd=bestFitDecreasing(items,capacity);
+
+    let out="";
+
+    out+=`
+    <h2>Input</h2>
+
+    <p><b>Items :</b> ${items.join(", ")}</p>
+
+    <p><b>Capacity :</b> ${capacity}</p>
+
+    <p><b>Sum :</b> ${total.toFixed(2)}</p>
+
+    <p><b>Lower Bound :</b> ${lower}</p>
+    `;
+
+    out+=show("First Fit",ff,capacity);
+
+    out+=show("First Fit Decreasing",ffd,capacity);
+
+    out+=show("Best Fit Decreasing",bfd,capacity);
+
+    out+=`
+    <h2>Summary</h2>
+
+    <table>
+
+    <tr>
+
+    <th>Algorithm</th>
+
+    <th>Bins Used</th>
+
+    </tr>
+
+    <tr><td>Lower Bound</td><td>${lower}</td></tr>
+
+    <tr><td>First Fit</td><td>${ff.length}</td></tr>
+
+    <tr><td>FFD</td><td>${ffd.length}</td></tr>
+
+    <tr><td>BFD</td><td>${bfd.length}</td></tr>
+
+    </table>
+    `;
+
+    document.getElementById("output").innerHTML=out;
+
+}
+
+calculate();
+
+</script>
+
+</body>
+</html>

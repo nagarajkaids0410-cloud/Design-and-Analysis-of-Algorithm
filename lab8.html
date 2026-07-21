@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TSP Brute Force Solver</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#f4f4f4;
+}
+.container{
+    width:900px;
+    margin:30px auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+}
+input,button,textarea{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+}
+button{
+    background:#1565c0;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+button:hover{
+    background:#0d47a1;
+}
+.result{
+    background:#eef;
+    padding:15px;
+    margin-top:20px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>Travelling Salesman Problem (Brute Force)</h2>
+
+<label>City Names (comma separated)</label>
+
+<input id="cities" value="A,B,C,D,E">
+
+<label>Cost Matrix (one row per line, values separated by spaces, use -1 for INF)</label>
+
+<textarea id="matrix" rows="8">
+-1 10 8 9 7
+10 -1 10 5 6
+8 10 -1 8 9
+9 5 8 -1 6
+7 6 9 6 -1
+</textarea>
+
+<button onclick="solve()">Find Optimal Tour</button>
+
+<div id="output"></div>
+
+</div>
+
+<script>
+
+const INF=Infinity;
+
+function permutations(arr){
+
+    if(arr.length==0) return [[]];
+
+    let result=[];
+
+    for(let i=0;i<arr.length;i++){
+
+        let current=arr[i];
+
+        let remaining=arr.slice(0,i).concat(arr.slice(i+1));
+
+        for(let p of permutations(remaining)){
+
+            result.push([current,...p]);
+
+        }
+
+    }
+
+    return result;
+
+}
+
+function solve(){
+
+    let cities=document.getElementById("cities").value.split(",");
+
+    let lines=document.getElementById("matrix").value.trim().split("\n");
+
+    let cost=[];
+
+    for(let line of lines){
+
+        let row=line.trim().split(/\s+/).map(Number);
+
+        row=row.map(x=>x==-1?INF:x);
+
+        cost.push(row);
+
+    }
+
+    let n=cities.length;
+
+    let nodes=[];
+
+    for(let i=1;i<n;i++)
+        nodes.push(i);
+
+    let perms=permutations(nodes);
+
+    let bestCost=INF;
+
+    let bestPath=[];
+
+    for(let perm of perms){
+
+        let path=[0,...perm,0];
+
+        let total=0;
+
+        let valid=true;
+
+        for(let i=0;i<n;i++){
+
+            if(cost[path[i]][path[i+1]]===INF){
+
+                valid=false;
+                break;
+
+            }
+
+            total+=cost[path[i]][path[i+1]];
+
+        }
+
+        if(valid && total<bestCost){
+
+            bestCost=total;
+
+            bestPath=path;
+
+        }
+
+    }
+
+    let html="";
+
+    html+="<div class='result'>";
+
+    html+="<h3>Optimal Tour</h3>";
+
+    html+=bestPath.map(i=>cities[i]).join(" → ");
+
+    html+="<br><br>";
+
+    html+="<b>Minimum Cost : </b>"+bestCost;
+
+    html+="<h3>Path Verification</h3>";
+
+    for(let i=0;i<n;i++){
+
+        let u=bestPath[i];
+
+        let v=bestPath[i+1];
+
+        html+=cities[u]+" → "+cities[v]+" = "+cost[u][v]+"<br>";
+
+    }
+
+    html+="</div>";
+
+    document.getElementById("output").innerHTML=html;
+
+}
+
+</script>
+
+</body>
+</html>

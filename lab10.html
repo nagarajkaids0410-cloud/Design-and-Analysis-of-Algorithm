@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quick Sort Performance Comparison</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f2f2f2;
+}
+
+.container{
+    width:1000px;
+    margin:30px auto;
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.2);
+}
+
+h2{
+    text-align:center;
+    color:#1565C0;
+}
+
+input{
+    padding:8px;
+    width:120px;
+}
+
+button{
+    padding:10px 20px;
+    background:#1565C0;
+    color:white;
+    border:none;
+    cursor:pointer;
+    margin-left:10px;
+}
+
+button:hover{
+    background:#0D47A1;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+table,th,td{
+    border:1px solid #999;
+}
+
+th{
+    background:#1565C0;
+    color:white;
+}
+
+th,td{
+    padding:10px;
+    text-align:center;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>Quick Sort Performance Comparison</h2>
+
+<label>Array Size :</label>
+<input type="number" id="size" value="5000">
+
+<button onclick="runTest()">Run Test</button>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+let comparisons=0;
+
+function partition(arr,low,high){
+
+    let pivot=arr[high];
+
+    let i=low-1;
+
+    for(let j=low;j<high;j++){
+
+        comparisons++;
+
+        if(arr[j]<=pivot){
+
+            i++;
+
+            [arr[i],arr[j]]=[arr[j],arr[i]];
+
+        }
+
+    }
+
+    [arr[i+1],arr[high]]=[arr[high],arr[i+1]];
+
+    return i+1;
+
+}
+
+function deterministicQuickSort(arr,low,high){
+
+    if(low<high){
+
+        let pi=partition(arr,low,high);
+
+        deterministicQuickSort(arr,low,pi-1);
+
+        deterministicQuickSort(arr,pi+1,high);
+
+    }
+
+}
+
+function randomizedQuickSort(arr,low,high){
+
+    if(low<high){
+
+        let rand=Math.floor(Math.random()*(high-low+1))+low;
+
+        [arr[rand],arr[high]]=[arr[high],arr[rand]];
+
+        let pi=partition(arr,low,high);
+
+        randomizedQuickSort(arr,low,pi-1);
+
+        randomizedQuickSort(arr,pi+1,high);
+
+    }
+
+}
+
+function test(sortFunction,array){
+
+    let arr=[...array];
+
+    comparisons=0;
+
+    let start=performance.now();
+
+    sortFunction(arr,0,arr.length-1);
+
+    let end=performance.now();
+
+    return{
+        comp:comparisons,
+        time:(end-start).toFixed(2)
+    };
+
+}
+
+function nearlySorted(n){
+
+    let arr=[];
+
+    for(let i=0;i<n;i++) arr.push(i);
+
+    for(let i=0;i<n/20;i++){
+
+        let a=Math.floor(Math.random()*n);
+
+        let b=Math.floor(Math.random()*n);
+
+        [arr[a],arr[b]]=[arr[b],arr[a]];
+
+    }
+
+    return arr;
+
+}
+
+function runTest(){
+
+    let N=parseInt(document.getElementById("size").value);
+
+    let random=[];
+
+    for(let i=0;i<N;i++)
+        random.push(Math.floor(Math.random()*100000));
+
+    let sorted=[];
+
+    for(let i=0;i<N;i++)
+        sorted.push(i);
+
+    let reverse=[];
+
+    for(let i=N;i>0;i--)
+        reverse.push(i);
+
+    let cases={
+        "Random":random,
+        "Sorted":sorted,
+        "Reverse":reverse,
+        "Nearly Sorted":nearlySorted(N)
+    };
+
+    let html="<table>";
+
+    html+="<tr>";
+
+    html+="<th>Input Type</th>";
+
+    html+="<th>DQS Comparisons</th>";
+
+    html+="<th>DQS Time (ms)</th>";
+
+    html+="<th>RQS Comparisons</th>";
+
+    html+="<th>RQS Time (ms)</th>";
+
+    html+="</tr>";
+
+    for(let key in cases){
+
+        let d=test(deterministicQuickSort,cases[key]);
+
+        let r=test(randomizedQuickSort,cases[key]);
+
+        html+="<tr>";
+
+        html+="<td>"+key+"</td>";
+
+        html+="<td>"+d.comp+"</td>";
+
+        html+="<td>"+d.time+"</td>";
+
+        html+="<td>"+r.comp+"</td>";
+
+        html+="<td>"+r.time+"</td>";
+
+        html+="</tr>";
+
+    }
+
+    html+="</table>";
+
+    document.getElementById("result").innerHTML=html;
+
+}
+
+</script>
+
+</body>
+</html>
