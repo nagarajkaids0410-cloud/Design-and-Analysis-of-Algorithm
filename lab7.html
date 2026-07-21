@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 7 - N Queens Problem</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f6f9;
+    margin:40px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,.2);
+}
+
+h1{
+    text-align:center;
+    color:#1565c0;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    font-size:18px;
+    margin:15px 0;
+}
+
+button{
+    padding:12px 20px;
+    background:#1565c0;
+    color:white;
+    border:none;
+    cursor:pointer;
+    border-radius:5px;
+    font-size:16px;
+}
+
+button:hover{
+    background:#0d47a1;
+}
+
+.solution{
+    margin-top:25px;
+}
+
+table{
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+td{
+    width:40px;
+    height:40px;
+    border:1px solid black;
+    text-align:center;
+    font-size:24px;
+}
+
+.result{
+    margin-top:20px;
+    font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>N Queens using Backtracking</h1>
+
+<label><b>Enter N :</b></label>
+
+<input type="number" id="n" value="4" min="4">
+
+<button onclick="solve()">Solve</button>
+
+<div class="result" id="result"></div>
+
+<div id="boards"></div>
+
+</div>
+
+<script>
+
+function isSafe(board,row,col){
+
+for(let i=0;i<row;i++){
+
+if(board[i]==col)
+return false;
+
+if(Math.abs(i-row)==Math.abs(board[i]-col))
+return false;
+
+}
+
+return true;
+
+}
+
+function solveQueens(n){
+
+let board=new Array(n).fill(-1);
+
+let solutions=[];
+
+let backtracks=0;
+
+function backtrack(row){
+
+if(row==n){
+
+solutions.push([...board]);
+
+return;
+
+}
+
+for(let col=0;col<n;col++){
+
+if(isSafe(board,row,col)){
+
+board[row]=col;
+
+backtrack(row+1);
+
+board[row]=-1;
+
+backtracks++;
+
+}
+
+}
+
+}
+
+backtrack(0);
+
+return {solutions,backtracks};
+
+}
+
+function drawBoard(solution,n){
+
+let html="<table>";
+
+for(let i=0;i<n;i++){
+
+html+="<tr>";
+
+for(let j=0;j<n;j++){
+
+if(solution[i]==j)
+html+="<td>♛</td>";
+else
+html+="<td>.</td>";
+
+}
+
+html+="</tr>";
+
+}
+
+html+="</table>";
+
+return html;
+
+}
+
+function solve(){
+
+let n=parseInt(document.getElementById("n").value);
+
+let ans=solveQueens(n);
+
+document.getElementById("result").innerHTML=
+
+"<b>Total Solutions :</b> "+ans.solutions.length+
+
+"<br><b>Backtracking Count :</b> "+ans.backtracks;
+
+let output="";
+
+for(let i=0;i<ans.solutions.length;i++){
+
+output+="<div class='solution'>";
+
+output+="<h3>Solution "+(i+1)+" : ["+
+
+ans.solutions[i].join(", ")+"]</h3>";
+
+output+=drawBoard(ans.solutions[i],n);
+
+output+="</div>";
+
+}
+
+document.getElementById("boards").innerHTML=output;
+
+}
+
+</script>
+
+</body>
+</html>
